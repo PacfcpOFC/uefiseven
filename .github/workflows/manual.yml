@@ -1,0 +1,29 @@
+name: Build UEFI Seven
+
+on:
+  push:
+    branches:
+      - main  # adjust branch as needed
+  pull_request:
+    branches:
+      - main  # adjust branch as needed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    
+    - name: Set up EDK II environment
+      run: source ./edksetup.sh
+    
+    - name: Build BaseTools
+      run: make -C BaseTools/
+    
+    - name: Regenerate Int10h assembly
+      run: ./MdeModulePkg/Application/UefiSeven/Int10hHandler.sh
+    
+    - name: Build UEFI Seven
+      run: build -a X64 -t GCC49 -b RELEASE -p UefiSevenPkg/UefiSevenPkg.dsc --conf=UefiSevenPkg/Conf
